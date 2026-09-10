@@ -1,0 +1,10 @@
+{
+  "name": "sistemas-web",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:calculadora": "npm run dev -w apps/calculadoras-clt"
+  }
+}
