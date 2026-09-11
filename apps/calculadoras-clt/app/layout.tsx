@@ -22,6 +22,9 @@ export const metadata: Metadata = {
       "Calculadoras financeiras trabalhistas gratuitas: salário líquido, rescisão, férias, 13º salário e horas extras.",
   },
   robots: { index: true, follow: true },
+  verification: {
+    google: "yI5Hay5bta-z9IddUYL34YJL-GZBeEFBchV46jICJOo",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
