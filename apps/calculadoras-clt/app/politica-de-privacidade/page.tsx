@@ -84,8 +84,14 @@ export default function PoliticaDePrivacidadePage() {
         <section>
           <h2 className="text-base font-semibold text-slate-900">7. Contato</h2>
           <p className="mt-2">
-            Dúvidas sobre esta política podem ser enviadas para o e-mail de contato indicado no
-            rodapé do site.
+            Dúvidas sobre esta política podem ser enviadas para{" "}
+            <a
+              href="mailto:contato@utilzap.com.br"
+              className="text-brand-red hover:underline"
+            >
+              contato@utilzap.com.br
+            </a>
+            .
           </p>
         </section>
       </div>

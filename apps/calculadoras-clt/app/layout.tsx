@@ -44,9 +44,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             Ferramenta gratuita para fins informativos. Não substitui aconselhamento contábil ou
             jurídico.
           </p>
-          <Link href="/politica-de-privacidade" className="mt-2 inline-block hover:underline">
-            Política de Privacidade
-          </Link>
+          <div className="mt-2 flex justify-center gap-4">
+            <Link href="/sobre" className="hover:underline">
+              Sobre
+            </Link>
+            <Link href="/politica-de-privacidade" className="hover:underline">
+              Política de Privacidade
+            </Link>
+            <a href="mailto:contato@utilzap.com.br" className="hover:underline">
+              Contato
+            </a>
+          </div>
         </footer>
       </body>
     </html>

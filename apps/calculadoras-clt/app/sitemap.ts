@@ -15,6 +15,7 @@ const routes = [
   "/adicional-noturno",
   "/aviso-previo",
   "/salario-liquido-para-bruto",
+  "/sobre",
   "/politica-de-privacidade",
 ];
 
