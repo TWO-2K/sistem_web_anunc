@@ -5,4 +5,4 @@
 - [x] Cadastrar o site no Google Search Console e verificar propriedade (via `calculadoras-clt.vercel.app`)
 - [x] Submeter `/sitemap.xml` no Search Console (sitemap confirmado válido; aguardando o Google reprocessar a leitura)
 - [ ] Aplicar pro Google AdSense — só depois dos passos acima, com o site já indexado e com tráfego mínimo (o Google costuma exigir isso)
-- [ ] Definir e-mail de contato real (hoje o rodapé/política só menciona "e-mail de contato" — não existe nenhum ainda)
+- [ ] Criar de fato o e-mail `contato@utilzap.com.br` (ou trocar por outro endereço) — o código já usa esse e-mail no rodapé, política de privacidade e página Sobre, mas a caixa de entrada ainda não existe
