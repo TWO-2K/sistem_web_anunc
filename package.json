@@ -5,6 +5,9 @@
     "apps/*"
   ],
   "scripts": {
-    "dev:calculadora": "npm run dev -w apps/calculadoras-clt"
+    "dev:calculadora": "npm run dev -w apps/calculadoras-clt",
+    "dev:pdf-tools": "npm run dev -w apps/pdf-tools",
+    "dev:whatsapp-tools": "npm run dev -w apps/whatsapp-tools",
+    "dev:dev-tools": "npm run dev -w apps/dev-tools"
   }
 }

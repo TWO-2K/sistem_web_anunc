@@ -52,6 +52,11 @@ const calculadoras = [
     descricao: "Calcule os dias e o valor do aviso prévio proporcional ao tempo de empresa.",
   },
   {
+    href: "/seguro-desemprego",
+    titulo: "Seguro-Desemprego",
+    descricao: "Descubra quantas parcelas você recebe e o valor de cada uma, pela tabela oficial.",
+  },
+  {
     href: "/salario-liquido-para-bruto",
     titulo: "Salário Líquido → Bruto",
     descricao: "Informe o líquido desejado e descubra o salário bruto necessário.",
@@ -86,7 +91,7 @@ export default function Home() {
       <p className="mt-2 max-w-2xl text-slate-600">
         Ferramentas gratuitas para calcular os principais valores trabalhistas de acordo com as
         regras da CLT: salário líquido, rescisão, férias, 13º salário, horas extras, FGTS, INSS
-        e IRRF. Todos os cálculos usam as tabelas oficiais vigentes em 2024 e são feitos
+        e IRRF. Todos os cálculos usam as tabelas oficiais vigentes em 2026 e são feitos
         diretamente no seu navegador, sem envio de dados para nenhum servidor.
       </p>
 

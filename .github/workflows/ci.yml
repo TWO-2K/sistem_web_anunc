@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  calculadoras-clt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run lint -w apps/calculadoras-clt
+      - run: npm run test -w apps/calculadoras-clt
+      - run: npm run build -w apps/calculadoras-clt
+
+  pdf-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run lint -w apps/pdf-tools
+      - run: npm run test -w apps/pdf-tools
+      - run: npm run build -w apps/pdf-tools
+
+  whatsapp-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run lint -w apps/whatsapp-tools
+      - run: npm run test -w apps/whatsapp-tools
+      - run: npm run build -w apps/whatsapp-tools
+
+  dev-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run lint -w apps/dev-tools
+      - run: npm run test -w apps/dev-tools
+      - run: npm run build -w apps/dev-tools

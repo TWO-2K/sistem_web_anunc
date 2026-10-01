@@ -14,6 +14,7 @@ const routes = [
   "/irrf",
   "/adicional-noturno",
   "/aviso-previo",
+  "/seguro-desemprego",
   "/salario-liquido-para-bruto",
   "/sobre",
   "/politica-de-privacidade",

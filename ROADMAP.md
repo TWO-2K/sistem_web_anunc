@@ -5,9 +5,9 @@ Cada app vive em `/apps/<nome>` neste monorepo. Ordem de prioridade definida em 
 | # | App | Categoria | Status |
 |---|-----|-----------|--------|
 | 🥇 | `calculadoras-clt` | Calculadoras financeiras/CLT | Em desenvolvimento |
-| 🥈 | — | Ferramentas para PDF/arquivos | Planejado |
-| 🥉 | — | Ferramentas para WhatsApp | Planejado |
-| 4 | — | Calculadoras gerais | Planejado |
-| 5 | — | Ferramentas para desenvolvedores | Planejado |
+| 🥈 | `pdf-tools` | Ferramentas para PDF/arquivos | Em desenvolvimento |
+| 🥉 | `whatsapp-tools` | Ferramentas para WhatsApp | Em desenvolvimento |
+| 4 | `dev-tools` | Ferramentas para desenvolvedores | Em desenvolvimento |
+| 5 | — | Calculadoras gerais | Planejado |
 | 6 | — | Conversores/unidades | Planejado |
 | 7 | — | Geradores de texto | Planejado |

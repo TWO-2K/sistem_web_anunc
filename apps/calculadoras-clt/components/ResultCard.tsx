@@ -24,7 +24,11 @@ function formatLineValue(value: number, format: ResultLine["format"]): string {
 
 export function ResultCard({ title, lines, total }: ResultCardProps) {
   return (
-    <div className="rounded-xl border border-slate-200 border-t-4 border-t-brand-red bg-white p-5 shadow-md">
+    <div
+      role="status"
+      aria-live="polite"
+      className="rounded-xl border border-slate-200 border-t-4 border-t-brand-red bg-white p-5 shadow-md"
+    >
       <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</h2>
       <dl className="mt-4 divide-y divide-slate-100">
         {lines.map((line) => (

@@ -1,9 +1,19 @@
 import {
   ALIQUOTA_FGTS,
   DEDUCAO_POR_DEPENDENTE_IRRF,
+  DESCONTO_SIMPLIFICADO_IRRF,
   FAIXAS_IRRF,
   FAIXAS_INSS,
+  IRRF_REDUTOR_CONSTANTE,
+  IRRF_REDUTOR_FATOR,
+  IRRF_REDUTOR_LIMITE_FINAL,
+  IRRF_REDUTOR_LIMITE_ISENCAO,
+  IRRF_REDUTOR_VALOR_ISENCAO,
   MULTA_FGTS_DISPENSA_SEM_JUSTA_CAUSA,
+  SALARIO_MINIMO,
+  SEGURO_DESEMPREGO_FAIXA_1,
+  SEGURO_DESEMPREGO_FAIXA_2,
+  SEGURO_DESEMPREGO_PARCELA_MAXIMA,
   TETO_INSS,
 } from "./clt-constants";
 
@@ -25,12 +35,29 @@ export function calcularINSS(salarioBase: number): number {
   return round2(total);
 }
 
-/** IRRF mensal sobre uma base de cálculo já líquida de INSS, com dedução por dependente. */
-export function calcularIRRF(baseCalculo: number, dependentes = 0): number {
-  const base = Math.max(baseCalculo - dependentes * DEDUCAO_POR_DEPENDENTE_IRRF, 0);
+/** Redutor do IRRF de 2026, calculado sobre o rendimento bruto do mês. */
+export function calcularRedutorIRRF(rendimentoBruto: number): number {
+  if (rendimentoBruto <= IRRF_REDUTOR_LIMITE_ISENCAO) return IRRF_REDUTOR_VALOR_ISENCAO;
+  if (rendimentoBruto <= IRRF_REDUTOR_LIMITE_FINAL) {
+    return Math.max(IRRF_REDUTOR_CONSTANTE - IRRF_REDUTOR_FATOR * rendimentoBruto, 0);
+  }
+  return 0;
+}
+
+/**
+ * IRRF mensal sobre uma base de cálculo já líquida de INSS, com dedução por dependente.
+ * Informe o rendimento bruto para aplicar o desconto simplificado (quando mais vantajoso)
+ * e o redutor de 2026 (isenção até R$ 5.000).
+ */
+export function calcularIRRF(baseCalculo: number, dependentes = 0, rendimentoBruto?: number): number {
+  const baseDeducoesLegais = baseCalculo - dependentes * DEDUCAO_POR_DEPENDENTE_IRRF;
+  const baseSimplificada =
+    rendimentoBruto === undefined ? Infinity : rendimentoBruto - DESCONTO_SIMPLIFICADO_IRRF;
+  const base = Math.max(Math.min(baseDeducoesLegais, baseSimplificada), 0);
   const faixa = FAIXAS_IRRF.find((f) => base <= f.ate) ?? FAIXAS_IRRF[FAIXAS_IRRF.length - 1];
-  const imposto = base * faixa.aliquota - faixa.deducao;
-  return round2(Math.max(imposto, 0));
+  const imposto = Math.max(base * faixa.aliquota - faixa.deducao, 0);
+  const redutor = rendimentoBruto === undefined ? 0 : calcularRedutorIRRF(rendimentoBruto);
+  return round2(Math.max(imposto - redutor, 0));
 }
 
 export interface SalarioLiquidoInput {
@@ -53,7 +80,7 @@ export function calcularSalarioLiquido(input: SalarioLiquidoInput): SalarioLiqui
   const { salarioBruto, dependentes = 0, outrosDescontos = 0 } = input;
   const inss = calcularINSS(salarioBruto);
   const baseIrrf = salarioBruto - inss;
-  const irrf = calcularIRRF(baseIrrf, dependentes);
+  const irrf = calcularIRRF(baseIrrf, dependentes, salarioBruto);
   const salarioLiquido = salarioBruto - inss - irrf - outrosDescontos;
   return {
     salarioBruto: round2(salarioBruto),
@@ -98,7 +125,7 @@ export function calcularFerias(input: FeriasInput): FeriasResultado {
 
   const inss = calcularINSS(totalTributavel);
   const baseIrrf = totalTributavel - inss;
-  const irrf = calcularIRRF(baseIrrf, dependentes);
+  const irrf = calcularIRRF(baseIrrf, dependentes, totalTributavel);
   const liquidoGozo = totalTributavel - inss - irrf;
 
   const valorAbono = (salarioBruto / 30) * diasAbono;
@@ -144,7 +171,7 @@ export function calcularDecimoTerceiro(input: DecimoTerceiroInput): DecimoTercei
 
   const inss = calcularINSS(valorIntegral);
   const baseIrrf = valorIntegral - inss;
-  const irrf = calcularIRRF(baseIrrf, dependentes);
+  const irrf = calcularIRRF(baseIrrf, dependentes, valorIntegral);
   const segundaParcelaLiquida = segundaParcelaBruta - inss - irrf;
 
   return {
@@ -334,9 +361,15 @@ export function calcularIRRFDetalhado(input: IRRFDetalhadoInput): IRRFDetalhadoR
   const { salarioBruto, dependentes = 0, outrasDeducoes = 0 } = input;
   const inss = calcularINSS(salarioBruto);
   const baseAntesDependentes = Math.max(salarioBruto - inss - outrasDeducoes, 0);
-  const irrf = calcularIRRF(baseAntesDependentes, dependentes);
+  const irrf = calcularIRRF(baseAntesDependentes, dependentes, salarioBruto);
 
-  const baseFinal = Math.max(baseAntesDependentes - dependentes * DEDUCAO_POR_DEPENDENTE_IRRF, 0);
+  const baseFinal = Math.max(
+    Math.min(
+      baseAntesDependentes - dependentes * DEDUCAO_POR_DEPENDENTE_IRRF,
+      salarioBruto - DESCONTO_SIMPLIFICADO_IRRF,
+    ),
+    0,
+  );
   const faixa = FAIXAS_IRRF.find((f) => baseFinal <= f.ate) ?? FAIXAS_IRRF[FAIXAS_IRRF.length - 1];
 
   return {
@@ -481,10 +514,10 @@ export function calcularRescisao(input: RescisaoInput): RescisaoResultado {
   const multaFgts = saldoFgts * MULTA_FGTS_DISPENSA_SEM_JUSTA_CAUSA;
 
   const inssSaldoSalario = calcularINSS(saldoSalario);
-  const irrfSaldoSalario = calcularIRRF(saldoSalario - inssSaldoSalario, dependentes);
+  const irrfSaldoSalario = calcularIRRF(saldoSalario - inssSaldoSalario, dependentes, saldoSalario);
 
   const inssDecimoTerceiro = calcularINSS(decimoTerceiroProporcional);
-  const irrfDecimoTerceiro = calcularIRRF(decimoTerceiroProporcional - inssDecimoTerceiro, dependentes);
+  const irrfDecimoTerceiro = calcularIRRF(decimoTerceiroProporcional - inssDecimoTerceiro, dependentes, decimoTerceiroProporcional);
 
   const totalBruto =
     saldoSalario +
@@ -515,5 +548,60 @@ export function calcularRescisao(input: RescisaoInput): RescisaoResultado {
     totalBruto: round2(totalBruto),
     totalDescontos: round2(totalDescontos),
     totalLiquido: round2(totalBruto - totalDescontos),
+  };
+}
+
+export interface SeguroDesempregoInput {
+  /** Média dos 3 últimos salários antes da dispensa. */
+  mediaSalarial: number;
+  /** Meses trabalhados com carteira nos últimos 36 meses. */
+  mesesTrabalhados: number;
+  /** 1 = primeira solicitação, 2 = segunda, 3 = terceira ou mais. */
+  solicitacao: 1 | 2 | 3;
+}
+
+export interface SeguroDesempregoResultado {
+  temDireito: boolean;
+  mesesMinimos: number;
+  valorParcela: number;
+  quantidadeParcelas: number;
+  valorTotal: number;
+}
+
+/** Valor da parcela pela tabela vigente, limitado ao salário mínimo e ao teto. */
+export function calcularParcelaSeguroDesemprego(mediaSalarial: number): number {
+  const media = Math.max(mediaSalarial, 0);
+  let parcela: number;
+  if (media <= SEGURO_DESEMPREGO_FAIXA_1) {
+    parcela = media * 0.8;
+  } else if (media <= SEGURO_DESEMPREGO_FAIXA_2) {
+    parcela = SEGURO_DESEMPREGO_FAIXA_1 * 0.8 + (media - SEGURO_DESEMPREGO_FAIXA_1) * 0.5;
+  } else {
+    parcela = SEGURO_DESEMPREGO_PARCELA_MAXIMA;
+  }
+  return round2(Math.min(Math.max(parcela, SALARIO_MINIMO), SEGURO_DESEMPREGO_PARCELA_MAXIMA));
+}
+
+/** Quantidade de parcelas conforme a Lei 13.134/2015 (0 = sem direito). */
+export function calcularParcelasSeguroDesemprego(mesesTrabalhados: number, solicitacao: 1 | 2 | 3): number {
+  const meses = Math.max(Math.floor(mesesTrabalhados), 0);
+  if (meses >= 24) return 5;
+  if (meses >= 12) return 4;
+  if (solicitacao === 2 && meses >= 9) return 3;
+  if (solicitacao === 3 && meses >= 6) return 3;
+  return 0;
+}
+
+export function calcularSeguroDesemprego(input: SeguroDesempregoInput): SeguroDesempregoResultado {
+  const mesesMinimos = input.solicitacao === 1 ? 12 : input.solicitacao === 2 ? 9 : 6;
+  const quantidadeParcelas = calcularParcelasSeguroDesemprego(input.mesesTrabalhados, input.solicitacao);
+  const temDireito = quantidadeParcelas > 0;
+  const valorParcela = temDireito ? calcularParcelaSeguroDesemprego(input.mediaSalarial) : 0;
+  return {
+    temDireito,
+    mesesMinimos,
+    valorParcela,
+    quantidadeParcelas,
+    valorTotal: round2(valorParcela * quantidadeParcelas),
   };
 }
